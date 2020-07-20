@@ -14,9 +14,9 @@ NEWPATH = 'Brodatz_128x128_corrosao2'
 ONLYFILES = [f for f in listdir(MYPATH) if isfile(join(MYPATH, f))]
 IMAGES = np.empty(len(ONLYFILES), dtype=object)
 
-V = 2
-GAMMA = 0.05
-INT = 100
+input('Surface roughness v:')
+input('Pitting power γ:')
+input('Number of iterations:')
 
 for n in range(730, 1778):
     IMAGES[n] = Image.open(join(MYPATH, ONLYFILES[n]))
