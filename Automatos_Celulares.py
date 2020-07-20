@@ -14,15 +14,15 @@ NEWPATH = 'Brodatz_128x128_corrosao2'
 ONLYFILES = [f for f in listdir(MYPATH) if isfile(join(MYPATH, f))]
 IMAGES = np.empty(len(ONLYFILES), dtype=object)
 
-input('Surface roughness v:')
-input('Pitting power γ:')
-input('Number of iterations:')
+V = int(input('Surface roughness v: '))
+GAMMA = float(input('Pitting power γ: '))
+INT = int(input('Number of iterations: '))
 
-for n in range(730, 1778):
+for n in range(len(ONLYFILES)):
     IMAGES[n] = Image.open(join(MYPATH, ONLYFILES[n]))
     c = IMAGES[n]
 
-#Add linhas e colunas imaginarias
+    #Add linhas e colunas imaginarias
     b = np.insert(c, 0, values=0, axis=1)
     f = np.insert(b, b.shape[1], values=0, axis=1)
     e = np.insert(f, 0, values=0, axis=0)
@@ -34,13 +34,15 @@ for n in range(730, 1778):
     Q = np.zeros((row, col))
     matrizcorrosao = np.zeros((row, col))
 
-#Associação da imagem original aos estados no t=0
+    #Associação da imagem original aos estados no t=0
     for i in range(row):
         for j in range(col):
             s[i, j, 0] = c[i, j]
-
+    
+    #Corrosao da imagem
     for t in range(INT):
-
+        
+        #Condição de contorno
         for i in range(col):
             s[0, i, t] = s[1, i, t]
             s[row-1, i, t] = s[row-2, i, t]
@@ -64,9 +66,9 @@ for n in range(730, 1778):
                     Q[i, j] = int((255 - d[i, j]) * GAMMA)
                     s[i, j, t+1] = s[i, j, t] + Q[i, j]
                     matrizcorrosao[i, j] += Q[i, j]
-                    
-    y = 255/np.amax(matrizcorrosao)
-    corrosaofinal = matrizcorrosao*y
+    
+    #Normalizar e salvar imagens corroídas em nova pasta
+    corrosaofinal = matrizcorrosao*255/np.amax(matrizcorrosao)
     img = Image.fromarray((corrosaofinal).astype(np.uint8))
     file_path = os.path.join(NEWPATH, ONLYFILES[n])
     img.save(file_path)
