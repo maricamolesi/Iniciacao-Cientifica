@@ -9,15 +9,18 @@ from PIL import Image
 import numpy as np
 import os
 
+#Entrada do banco de imagens de interesse, no caso do trabalho foi utilizado o banco de imagens Brodatz.
 MYPATH = 'Brodatz_128x128'
-NEWPATH = 'Brodatz_128x128_corrosao2'
+NEWPATH = '(caminho da pasta para salvar as imagens corroídas)'
 ONLYFILES = [f for f in listdir(MYPATH) if isfile(join(MYPATH, f))]
 IMAGES = np.empty(len(ONLYFILES), dtype=object)
 
+#Entrada dos parâmetros
 V = int(input('Surface roughness v: '))
 GAMMA = float(input('Pitting power γ: '))
 INT = int(input('Number of iterations: '))
 
+#Acesso a cada imagem da pasta
 for n in range(len(ONLYFILES)):
     IMAGES[n] = Image.open(join(MYPATH, ONLYFILES[n]))
     c = IMAGES[n]
@@ -29,10 +32,10 @@ for n in range(len(ONLYFILES)):
     c = np.insert(e, e.shape[0], values=0, axis=0)
 
     row, col = c.shape
-    s = np.zeros((row, col, INT+1))
-    d = np.zeros((row, col))
-    Q = np.zeros((row, col))
-    matrizcorrosao = np.zeros((row, col))
+    s = np.zeros((row, col, INT+1))  #Matriz dos estados das células
+    d = np.zeros((row, col))         #Matriz da diferença do estado e o menor valor da vizinhança
+    Q = np.zeros((row, col))         #Matriz das corrosões
+    matrizcorrosao = np.zeros((row, col))   #Matriz da massa total corroída
 
     #Associação da imagem original aos estados no t=0
     for i in range(row):
@@ -49,7 +52,7 @@ for n in range(len(ONLYFILES)):
         for i in range(row):
             s[i, 0, t] = s[i, 1, t]
             s[i, col-1, t] = s[i, col-2, t]
-
+        
         for i in range(1, row-1):
             for j in range(1, col-1):
                 smin = s[i-1, j-1, t]
