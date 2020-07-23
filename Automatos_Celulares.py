@@ -20,6 +20,9 @@ V = int(input('Surface roughness v: '))
 GAMMA = float(input('Pitting power γ: '))
 INT = int(input('Number of iterations: '))
 
+#Matriz dos vetores característicos
+FEATURE_MATRIX = np.zeros((len(ONLYFILES), (INT)))
+
 #Acesso a cada imagem da pasta
 for n in range(len(ONLYFILES)):
     IMAGES[n] = Image.open(join(MYPATH, ONLYFILES[n]))
@@ -62,13 +65,14 @@ for n in range(len(ONLYFILES)):
                             smin = s[k, m, t]
                 d[i, j] = s[i, j, t] - smin
 
-
-                if (d[i, j] < V or d[i, j] >= 255):
+                if (d[i, j] < V or d[i, j] > 255):
                     s[i, j, t+1] = s[i, j, t]
                 else:
                     Q[i, j] = int((255 - d[i, j]) * GAMMA)
                     s[i, j, t+1] = s[i, j, t] + Q[i, j]
                     matrizcorrosao[i, j] += Q[i, j]
+                    
+        FEATURE_MATRIX[n, t] = (np.sum(matrizcorrosao)/(row*col))            
     
     #Normalizar e salvar imagens corroídas em nova pasta
     corrosaofinal = matrizcorrosao*255/np.amax(matrizcorrosao)
